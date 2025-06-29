@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Transaction History - Titanium FX Wallet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <!-- Smartsupp Live Chat script -->
+<script type="text/javascript">
+var _smartsupp = _smartsupp || {};
+_smartsupp.key = '09886095a5987ea5673fadbf440836e647989737';
+window.smartsupp||(function(d) {
+	var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+	s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+	c.type='text/javascript';c.charset='utf-8';c.async=true;
+	c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+})(document);
+</script>
+    <link rel="icon" href="logo.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+      padding: 20px;
+    }
+    #loader {
+      background: #f8fafc;
+      height: 100vh;
+      width: 100vw;
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+    .loader-container {
+      position: relative;
+      width: 240px;
+      height: 240px;
+    }
+    .loader-logo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 72px;
+      font-weight: bold;
+      color: #3b82f6;
+      user-select: none;
+      white-space: nowrap;
+      z-index: 2;
+      animation: scalePulse 2s infinite ease-in-out;
+    }
+    .spinner-ring {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 240px;
+      height: 240px;
+      border: 5px solid transparent;
+      border-left: 5px solid #3b82f6;
+      border-bottom: 5px solid rgba(59, 130, 246, 0.6);
+      border-right: 5px solid rgba(59, 130, 246, 0.3);
+      border-top: 5px solid transparent;
+      border-radius: 50%;
+      animation: spin 2s linear infinite;
+      z-index: 1;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes scalePulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.2); }
+    }
+    .history-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    h2 {
+  font-size: 24px;
+  text-align: center;
+  color: #0f172a;
+  margin: 8px 0 12px; /* Top reduced from default to 8px */
+}
+    .back-btn {
+      background: #e2e8f0;
+      color: #1e293b;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+#balance-summary {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #374151; /* updated for more professional tone */
+  margin-bottom: 18px;
+}
+    select, .toggle-btn {
+      display: block;
+      margin: 0 auto 16px;
+      padding: 8px 14px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #1e293b;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .transaction {
+      border-left: 5px solid #3b82f6;
+      background: #f8fafc;
+      margin-bottom: 14px;
+      padding: 14px 18px;
+      border-radius: 12px;
+    }
+    .transaction.negative { border-left-color: #ef4444; }
+    .transaction.investment { border-left-color: #f59e0b; }
+    .transaction-type {
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .transaction-amount { font-size: 16px; color: #0f172a; }
+    .transaction-time { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      background: #f1f5f9;
+      border-radius: 14px;
+      color: #64748b;
+      font-size: 15px;
+      border: 1px dashed #cbd5e1;
+    }
+    .empty-state i {
+      font-size: 40px;
+      margin-bottom: 12px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <div id="loader">
+    <div class="loader-container">
+      <div class="loader-logo">FMS</div>
+      <div class="spinner-ring"></div>
+    </div>
+  </div>
+  <button class="back-btn" onclick="history.back()">&larr; Back</button>
+  <div class="history-container">
+    <h2><i class="fas fa-list-alt"></i> Transaction History</h2>
+    <div id="balance-summary"><i class="fas fa-wallet"></i> Balance: $0.00</div>
+    <select id="filter-type" onchange="loadTransactions()">
+      <option value="all">All Transactions</option>
+      <option value="transaction">Deposits</option>
+      <option value="withdrawal">Withdrawals</option>
+      <option value="investment">Investments</option>
+    </select>
+    <button class="toggle-btn" onclick="toggleSort()">Sort: <span id="sort-label">Newest</span></button>
+    <div id="history-list">
+      <div class="empty-state" id="no-transactions" style="display: none;">
+        <i class="fas fa-file-invoice-dollar"></i><br>
+        No transactions found.<br>
+        Make a deposit, withdrawal, or investment to get started.
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getFirestore, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB89FVW7DW8xdASCAyNsTN71zK5p_YMSVk",
+      authDomain: "titanium-fx.firebaseapp.com",
+      projectId: "titanium-fx",
+      storageBucket: "titanium-fx.appspot.com",
+      messagingSenderId: "623119248603",
+      appId: "1:623119248603:web:824489ee0033bef9bdf0fe"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth();
+    let currentSort = "desc";
+
+    function toggleSort() {
+      currentSort = currentSort === "desc" ? "asc" : "desc";
+      document.getElementById("sort-label").innerText = currentSort === "desc" ? "Newest" : "Oldest";
+      loadTransactions();
+    }
+
+    function formatDate(timestamp) {
+      const date = timestamp.toDate();
+      return date.toLocaleString();
+    }
+
+    async function loadTransactions() {
+      const historyList = document.getElementById("history-list");
+      const noTransactions = document.getElementById("no-transactions");
+      const filter = document.getElementById("filter-type")?.value || "all";
+      const balanceEl = document.getElementById("balance-summary");
+
+      historyList.innerHTML = "";
+      let balance = 0;
+
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          historyList.innerHTML = `<div class="empty-state"><i class="fas fa-lock"></i><br>Please log in to view your transaction history.</div>`;
+          return;
+        }
+
+        try {
+          const transactionsRef = collection(db, "users", user.uid, "transactions");
+          const withdrawalsRef = collection(db, "users", user.uid, "withdrawals");
+          const investmentsRef = query(
+            collection(db, "investments"),
+            where("uid", "==", user.uid),
+            orderBy("startDate", currentSort)
+          );
+
+          const [transSnap, withdrawSnap, investSnap] = await Promise.all([
+            getDocs(query(transactionsRef, orderBy("timestamp", currentSort))),
+            getDocs(query(withdrawalsRef, orderBy("timestamp", currentSort))),
+            getDocs(investmentsRef)
+          ]);
+
+          let combined = [];
+          transSnap.forEach(doc => combined.push({ id: doc.id, ...doc.data(), source: "transaction" }));
+          withdrawSnap.forEach(doc => combined.push({ id: doc.id, ...doc.data(), source: "withdrawal" }));
+          investSnap.forEach(doc => combined.push({ id: doc.id, ...doc.data(), source: "investment" }));
+
+          combined = combined.filter(tx => filter === "all" || tx.source === filter);
+
+          combined.sort((a, b) => {
+            const tA = (a.timestamp || a.startDate)?.toMillis?.() || 0;
+            const tB = (b.timestamp || b.startDate)?.toMillis?.() || 0;
+            return currentSort === "desc" ? tB - tA : tA - tB;
+          });
+
+          if (combined.length === 0) {
+            noTransactions.style.display = "block";
+            balanceEl.innerText = "\uD83D\uDCB0 Balance: $0.00";
+            return;
+          }
+
+          noTransactions.style.display = "none";
+
+          combined.forEach(tx => {
+            let displayType = "";
+            let amount = 0;
+            let cssClass = "transaction";
+
+            if (tx.source === "withdrawal") {
+              displayType = "Withdraw";
+              amount = Number(tx.amountUSD) || 0;
+              cssClass += " negative";
+              balance -= amount;
+            } else if (tx.source === "transaction") {
+              displayType = "Deposit";
+              amount = Number(tx.amount) || 0;
+              balance += amount;
+            } else if (tx.source === "investment") {
+              displayType = "Investment";
+              amount = Number(tx.amount) || 0;
+              cssClass += " investment";
+              balance -= amount;
+            }
+
+            const txTime = tx.timestamp || tx.startDate;
+            const statusLabel = tx.source === "withdrawal"
+              ? (tx.status === "approved"
+                ? '<span style="background:#d1fae5;color:#065f46;padding:2px 6px;border-radius:6px;font-size:12px;">Successful</span>'
+                : '<span style="background:#e5e7eb;color:#374151;padding:2px 6px;border-radius:6px;font-size:12px;">Pending</span>')
+              : "";
+
+            const div = document.createElement("div");
+            div.className = cssClass;
+            div.innerHTML = `
+              <div class="transaction-type">${displayType} ${statusLabel}</div>
+              <div class="transaction-amount">$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+              <div class="transaction-time">${txTime ? formatDate(txTime) : "Pending..."}</div>
+              <div style="font-size:13px;color:#94a3b8;">${tx.note || tx.plan || ""}</div>
+            `;
+            historyList.appendChild(div);
+          });
+
+          balanceEl.innerHTML = `<i class="fas fa-wallet"></i> Balance: $${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        } catch (error) {
+          console.error("Error loading transactions:", error.message, error.stack);
+alert("Error: " + error.message);
+          historyList.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><br>Failed to load data. Try again later.</div>`;
+        }
+      });
+    }
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        const loader = document.getElementById("loader");
+        loader.style.opacity = "0";
+        setTimeout(() => loader.style.display = "none", 500);
+      }, 1200);
+    });
+
+    loadTransactions();
+  </script>
+</body>
+</html>

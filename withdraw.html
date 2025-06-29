@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Smartsupp Live Chat script -->
+<script type="text/javascript">
+var _smartsupp = _smartsupp || {};
+_smartsupp.key = '09886095a5987ea5673fadbf440836e647989737';
+window.smartsupp||(function(d) {
+	var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+	s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+	c.type='text/javascript';c.charset='utf-8';c.async=true;
+	c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+})(document);
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Withdraw - UI Wallet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f8fafc;
+    color: #1e293b;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px 40px;
+  }
+  .page-header h1 {
+    font-size: 30px;
+    color: #3b82f6;
+    text-shadow: 0 0 8px #3b82f6;
+  }
+  .page-header p {
+    color: #334155;
+    font-size: 14px;
+    margin-top: 8px;
+  }
+  .back-btn {
+    position: fixed; top: 20px; left: 20px;
+    background: #334155; color: #ffffff;
+    padding: 8px 14px; border-radius: 10px;
+    font-size: 14px; text-decoration: none;
+    transition: 0.3s; z-index: 10;
+    cursor: pointer;
+  }
+  .back-btn:hover { background: #1e293b; }
+  .container {
+    width: 100%; max-width: 420px;
+    background: #f1f5f9;
+    border-radius: 20px;
+    padding: 30px 20px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.05);
+    backdrop-filter: blur(20px);
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .balance-box {
+    margin-bottom: 25px; padding: 16px;
+    background: #ffffff; border-radius: 12px;
+    box-shadow: inset 0 0 10px #e2e8f0;
+    text-align: center;
+  }
+  .balance-box h3 {
+    font-size: 14px; color: #334155; margin-bottom: 5px;
+  }
+  .balance-box p {
+    font-size: 22px;
+    font-weight: bold;
+    color: #0f172a;
+    text-shadow: none;
+  }
+  .form-group { margin-bottom: 18px; }
+  label {
+    display: block; margin-bottom: 6px;
+    font-size: 14px; color: #334155;
+  }
+  input, select {
+    width: 100%; padding: 14px;
+    border: 1px solid #e2e8f0; border-radius: 12px;
+    background: #ffffff; color: #0f172a;
+    font-size: 15px;
+  }
+  input::placeholder { color: #64748b; opacity: 0.7; }
+  .crypto-preview {
+    display: flex; align-items: center;
+    gap: 10px; margin-bottom: 8px; margin-top: 10px;
+  }
+  .crypto-preview img { width: 24px; height: 24px; }
+  .withdraw-btn {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, #3b82f6, #fbbf24);
+    border: none; border-radius: 12px;
+    font-size: 16px; font-weight: 600;
+    color: #ffffff; cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(59,130,246,0.4);
+  }
+  .withdraw-btn:hover:not(:disabled) { 
+    transform: translateY(-2px); 
+    background: #3b82f6; 
+  }
+  .withdraw-btn:disabled {
+    background: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+  .loader { display: none; justify-content: center; margin-top: 14px; }
+  .loader div {
+    width: 8px; height: 8px; margin: 0 3px;
+    border-radius: 50%; background: #3b82f6;
+    animation: pulse 0.8s infinite alternate;
+  }
+  .loader div:nth-child(2) { animation-delay: 0.2s; }
+  .loader div:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse {
+    to { transform: scale(1.4); opacity: 0.6; }
+  }
+  .note {
+    margin-top: 14px;
+    font-size: 13px;
+    color: #334155;
+    text-align: center;
+  }
+  .toast, .copied-toast {
+    position: fixed;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: bottom 0.4s ease;
+    z-index: 999;
+    color: #ffffff;
+  }
+  .toast {
+    background: #dc2626;
+    box-shadow: 0 6px 16px rgba(220,38,38,0.4);
+  }
+  .copied-toast {
+    background: #3b82f6;
+    box-shadow: 0 6px 16px rgba(37,99,235,0.4);
+  }
+  .toast.show, .copied-toast.show { bottom: 60px; }
+  .filter-buttons {
+    display: flex; gap: 10px; justify-content: center;
+    margin-bottom: 10px; flex-wrap: wrap;
+  }
+  .filter-buttons button {
+    background: #e2e8f0;
+    border: none; color: #0f172a;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.3s ease;
+  }
+  .filter-buttons button.active { background: #3b82f6; color: #fff; }
+  .filter-buttons button:hover:not(.active) {
+    background: #cbd5e1;
+  }
+  .withdrawal-entry {
+    background: #ffffff; margin-bottom: 10px;
+    padding: 10px 14px; border-radius: 10px;
+    font-size: 13px; box-shadow: 0 0 5px #e2e8f0;
+    position: relative;
+    word-break: break-word;
+  }
+  .withdrawal-entry .actions {
+    margin-top: 5px; display: flex; gap: 10px;
+  }
+  .withdrawal-entry button {
+    padding: 4px 10px; font-size: 12px;
+    border: none; border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  .approve-btn { background: #22c55e; color: white; }
+  .approve-btn:hover { background: #16a34a; }
+  .decline-btn { background: #dc2626; color: white; }
+  .decline-btn:hover { background: #b91c1c; }
+  .copy-btn {
+    cursor: pointer;
+    background: #e2e8f0;
+    color: #1e293b;
+    border-radius: 6px;
+    padding: 2px 8px;
+    margin-left: 8px;
+    font-size: 12px;
+    border: none;
+    transition: background 0.3s ease;
+    vertical-align: middle;
+  }
+  .copy-btn:hover {
+    background: #fbbf24;
+    color: #ffffff;
+  }
+</style>
+</head>
+<body>
+<a href="dashboard.html" class="back-btn" role="button">&larr; Back</a>
+
+<div class="page-header">
+  <h1>Withdraw</h1>
+  <p>Send your crypto earnings to your wallet</p>
+</div>
+
+
+<div class="container">
+  <div class="balance-box">
+    <h3>Available Balance</h3>
+    <p id="balanceAmount">$0.00</p>
+  </div>
+
+<div class="form-group">
+  <label for="crypto">Select Cryptocurrency</label>
+  <select id="crypto" aria-label="Select cryptocurrency">
+    <option value="">Select</option>
+    <option value="usdt">USDT</option>
+    <option value="usdc">USDC</option>
+    <option value="btc">Bitcoin</option>
+    <option value="eth">Ethereum</option>
+    <option value="sol">Solana</option>
+    <option value="xrp">XRP</option>
+    <option value="ton">Toncoin</option>
+    <option value="bnb">Binance Coin</option>
+  </select>
+</div>
+
+  <div class="crypto-preview" id="cryptoPreview" style="display: none;">
+    <img id="cryptoLogo" src="" alt="Crypto Logo" />
+    <span id="cryptoName"></span>
+  </div>
+
+  <div class="form-group">
+    <label for="usdAmount">Amount (USD)</label>
+    <input type="number" id="usdAmount" step="0.01" placeholder="Enter amount in USD" aria-label="Amount in USD"/>
+  </div>
+
+  <div class="form-group">
+    <label for="walletAddress">Your Wallet Address</label>
+    <input type="text" id="walletAddress" placeholder="Paste your wallet address" aria-label="Wallet address"/>
+  </div>
+
+  <button class="withdraw-btn" id="withdrawBtn" onclick="submitWithdraw()" disabled>Submit Withdrawal</button>
+  <div class="loader" id="loader"><div></div><div></div><div></div></div>
+
+  <p class="note">Minimum withdrawal is $120000</p>
+
+  <div class="filter-buttons" aria-label="Filter withdrawal history">
+    <button type="button" class="active" data-filter="all">All</button>
+    <button type="button" data-filter="pending">Pending</button>
+    <button type="button" data-filter="approved">Approved</button>
+    <button type="button" data-filter="declined">Declined</button>
+  </div>
+
+  <div id="withdrawalHistory" aria-live="polite" aria-atomic="true" aria-relevant="additions"></div>
+</div>
+
+<!-- Toast for errors -->
+<div class="toast" id="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
+<!-- Toast for copy success -->
+<div class="copied-toast" id="copiedToast" role="alert" aria-live="polite" aria-atomic="true">Copied to clipboard!</div>
+
+<script>
+  // Firebase configuration (replace with your own)
+  const firebaseConfig = {
+    apiKey: "AIzaSyB89FVW7DW8xdASCAyNsTN71zK5p_YMSVk",
+    authDomain: "titanium-fx.firebaseapp.com",
+    projectId: "titanium-fx",
+    storageBucket: "titanium-fx.appspot.com",
+    messagingSenderId: "623119248603",
+    appId: "1:623119248603:web:824489ee0033bef9bdf0fe"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  const balanceAmount = document.getElementById('balanceAmount');
+  const cryptoSelect = document.getElementById('crypto');
+  const cryptoPreview = document.getElementById('cryptoPreview');
+  const cryptoLogo = document.getElementById('cryptoLogo');
+  const cryptoName = document.getElementById('cryptoName');
+  const usdAmountInput = document.getElementById('usdAmount');
+  const walletAddressInput = document.getElementById('walletAddress');
+  const withdrawBtn = document.getElementById('withdrawBtn');
+  const loader = document.getElementById('loader');
+  const withdrawalHistory = document.getElementById('withdrawalHistory');
+  const toast = document.getElementById('toast');
+  const copiedToast = document.getElementById('copiedToast');
+  const filterButtons = document.querySelectorAll('.filter-buttons button');
+
+  let user = null;
+  let userBalance = 0;
+  let withdrawalDocs = [];
+// Crypto logo URLs
+
+const cryptoAssets = {
+  usdt: {
+    name: 'USDT',
+    logo: 'https://assets.coingecko.com/coins/images/325/large/Tether.png',
+    minWithdrawal: 120000
+  },
+  usdc: {
+    name: 'USDC',
+    logo: 'https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png',
+    minWithdrawal: 120000
+  },
+  btc: {
+    name: 'Bitcoin',
+    logo: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',
+    minWithdrawal: 120000
+  },
+  eth: {
+    name: 'Ethereum',
+    logo: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png',
+    minWithdrawal: 120000
+  },
+  sol: {
+    name: 'Solana',
+    logo: 'https://assets.coingecko.com/coins/images/4128/large/solana.png',
+    minWithdrawal: 120000
+  },
+  xrp: {
+    name: 'XRP',
+    logo: 'https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png',
+    minWithdrawal: 120000
+  },
+  ton: {
+    name: 'Toncoin',
+    logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ton/info/logo.png',
+    minWithdrawal: 120000
+  },
+  bnb: {
+    name: 'Binance Coin',
+    logo: 'https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png',
+    minWithdrawal: 120000
+  }
+};
+
+
+  // Show crypto preview when selected
+  cryptoSelect.addEventListener('change', () => {
+    const val = cryptoSelect.value;
+    if (val && cryptoAssets[val]) {
+      cryptoPreview.style.display = 'flex';
+      cryptoLogo.src = cryptoAssets[val].logo;
+      cryptoLogo.alt = cryptoAssets[val].name + ' Logo';
+      cryptoName.textContent = cryptoAssets[val].name;
+    } else {
+      cryptoPreview.style.display = 'none';
+    }
+    validateForm();
+  });
+
+  // Validate inputs and enable/disable submit button
+  function validateForm() {
+    const cryptoVal = cryptoSelect.value;
+    const usdVal = parseFloat(usdAmountInput.value);
+    const walletVal = walletAddressInput.value.trim();
+
+    let valid = true;
+
+    if (!cryptoVal || !(cryptoVal in cryptoAssets)) valid = false;
+    if (!walletVal) valid = false;
+    if (isNaN(usdVal) || usdVal < cryptoAssets[cryptoVal]?.minWithdrawal) valid = false;
+    if (usdVal > userBalance) valid = false;
+
+    withdrawBtn.disabled = !valid;
+  }
+
+  usdAmountInput.addEventListener('input', validateForm);
+  walletAddressInput.addEventListener('input', validateForm);
+
+  // Show toast message
+  function showToast(message, isError = true) {
+    toast.textContent = message;
+    toast.style.backgroundColor = isError ? '#dc2626' : '#16a34a';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+  }
+
+  // Show copied toast
+  function showCopiedToast() {
+    copiedToast.classList.add('show');
+    setTimeout(() => copiedToast.classList.remove('show'), 2000);
+  }
+
+  // Submit withdrawal request
+  async function submitWithdraw() {
+    withdrawBtn.disabled = true;
+    loader.style.display = 'flex';
+
+    const cryptoVal = cryptoSelect.value;
+    const usdVal = parseFloat(usdAmountInput.value);
+    const walletVal = walletAddressInput.value.trim();
+
+    if (!user) {
+      showToast('User not logged in');
+      withdrawBtn.disabled = false;
+      loader.style.display = 'none';
+      return;
+    }
+
+    // Double check amount vs balance & minimum
+    if (usdVal > userBalance) {
+      showToast('Insufficient balance');
+      withdrawBtn.disabled = false;
+      loader.style.display = 'none';
+      return;
+    }
+    if (usdVal < cryptoAssets[cryptoVal].minWithdrawal) {
+      showToast(`Minimum withdrawal is $${cryptoAssets[cryptoVal].minWithdrawal}`);
+      withdrawBtn.disabled = false;
+      loader.style.display = 'none';
+      return;
+    }
+
+    try {
+      // Create withdrawal request in Firestore
+      const withdrawalData = {
+        userId: user.uid,
+        crypto: cryptoVal,
+        amountUSD: usdVal,
+        walletAddress: walletVal,
+        status: 'pending',
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      await db.collection('users')
+        .doc(user.uid)
+        .collection('withdrawals')
+        .add(withdrawalData);
+
+      // Deduct balance
+      await db.collection('users').doc(user.uid).update({
+        balance: firebase.firestore.FieldValue.increment(-usdVal)
+      });
+
+      // Reset form
+      cryptoSelect.value = '';
+      usdAmountInput.value = '';
+      walletAddressInput.value = '';
+      cryptoPreview.style.display = 'none';
+      withdrawBtn.disabled = true;
+
+      showToast('Withdrawal request submitted!', false);
+
+      fetchBalance();
+      fetchWithdrawalHistory();
+    } catch (error) {
+      console.error(error);
+      showToast('Failed to submit withdrawal. Try again later.');
+    } finally {
+      loader.style.display = 'none';
+      withdrawBtn.disabled = false;
+    }
+  }
+
+  // Fetch user balance
+  async function fetchBalance() {
+    if (!user) return;
+    try {
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        userBalance = userDoc.data().balance || 0;
+        balanceAmount.textContent = `$${userBalance.toFixed(2)}`;
+        validateForm();
+      } else {
+        balanceAmount.textContent = '$0.00';
+      }
+    } catch (error) {
+      console.error('Error fetching balance:', error);
+      balanceAmount.textContent = '$0.00';
+    }
+  }
+
+  // Render withdrawal history with filters and actions for admin
+  function renderWithdrawalHistory(filter = 'all') {
+    withdrawalHistory.innerHTML = '';
+
+    const filtered = withdrawalDocs.filter(doc => {
+      if (filter === 'all') return true;
+      return doc.status === filter;
+    });
+
+    if (filtered.length === 0) {
+      withdrawalHistory.innerHTML = '<p style="text-align:center; color:#94a3b8;">No withdrawals found.</p>';
+      return;
+    }
+
+    filtered.forEach(doc => {
+      const div = document.createElement('div');
+      div.className = 'withdrawal-entry';
+      div.tabIndex = 0;
+      div.setAttribute('aria-label', `Withdrawal ${doc.id}, amount $${doc.amountUSD.toFixed(2)}, cryptocurrency ${cryptoAssets[doc.crypto].name}, status ${doc.status}`);
+
+      div.innerHTML = `
+        <div><strong>Amount:</strong> $${doc.amountUSD.toFixed(2)}</div>
+        <div><strong>Crypto:</strong> ${cryptoAssets[doc.crypto].name}</div>
+        <div><strong>Wallet:</strong> <span>${doc.walletAddress}</span> <button class="copy-btn" aria-label="Copy wallet address" data-address="${doc.walletAddress}">Copy</button></div>
+        <div><strong>Status:</strong> <span>${doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}</span></div>
+        <div><strong>Date:</strong> ${doc.timestamp?.toDate().toLocaleString() || 'N/A'}</div>
+      `;
+
+      // Admin actions only if user is admin and status pending
+      if (user && user.isAdmin && doc.status === 'pending') {
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'actions';
+
+        const approveBtn = document.createElement('button');
+        approveBtn.className = 'approve-btn';
+        approveBtn.textContent = 'Approve';
+        approveBtn.addEventListener('click', () => updateWithdrawalStatus(doc.id, 'approved'));
+
+        const declineBtn = document.createElement('button');
+        declineBtn.className = 'decline-btn';
+        declineBtn.textContent = 'Decline';
+        declineBtn.addEventListener('click', () => updateWithdrawalStatus(doc.id, 'declined'));
+
+        actionsDiv.appendChild(approveBtn);
+        actionsDiv.appendChild(declineBtn);
+        div.appendChild(actionsDiv);
+      }
+
+      withdrawalHistory.appendChild(div);
+    });
+
+    // Add event listeners to copy buttons
+    withdrawalHistory.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const address = e.target.getAttribute('data-address');
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(address).then(showCopiedToast).catch(() => showToast('Failed to copy address'));
+        } else {
+          showToast('Clipboard not supported');
+        }
+      });
+    });
+  }
+
+  // Fetch withdrawal history from Firestore
+  
+  async function fetchWithdrawalHistory() {
+  if (!user) return;
+
+  try {
+    const snapshot = await db.collection('users')
+  .doc(user.uid)
+  .collection('withdrawals')
+  .orderBy('timestamp', 'desc')
+  .get();
+  
+withdrawalDocs = snapshot.docs.map(doc => ({
+  id: doc.id,
+  userId: user.uid, // <-- necessary for admin status update
+  ...doc.data()
+}));
+    
+
+    renderWithdrawalHistory();
+  } catch (error) {
+    console.error('Error fetching withdrawal history:', error);
+  }
+}
+  
+
+  // Update withdrawal status (admin only)
+  async function updateWithdrawalStatus(docId, status) {
+    if (!user?.isAdmin) {
+      showToast('You do not have permission');
+      return;
+    }
+    try {
+      await db.collection('withdrawals').doc(docId).update({ status });
+      showToast(`Withdrawal ${status}`, false);
+
+      // Optional: refund balance if declined
+      if (status === 'declined') {
+        const doc = withdrawalDocs.find(d => d.id === docId);
+        if (doc) {
+          await db.collection('users').doc(doc.userId).update({
+            balance: firebase.firestore.FieldValue.increment(doc.amountUSD)
+          });
+          fetchBalance();
+        }
+      }
+      fetchWithdrawalHistory();
+    } catch (error) {
+      console.error('Error updating withdrawal:', error);
+      showToast('Failed to update withdrawal');
+    }
+  }
+
+  // Filter button handlers
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderWithdrawalHistory(btn.getAttribute('data-filter'));
+    });
+  });
+
+  // Authentication and init
+  auth.onAuthStateChanged(async (firebaseUser) => {
+  if (firebaseUser) {
+    user = {
+      uid: firebaseUser.uid,
+      email: firebaseUser.email,
+      isAdmin: false,
+    };
+
+    // Fetch user data (like balance and isAdmin)
+    try {
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        const data = userDoc.data();
+        user.isAdmin = data.isAdmin || false;
+        userBalance = data.balance || 0;
+        balanceAmount.textContent = `$${userBalance.toFixed(2)}`;
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+
+        // Fetch withdrawal history now that user info is ready
+    fetchWithdrawalHistory();
+
+    validateForm();
+  } else {
+    user = null;
+    userBalance = 0;
+    balanceAmount.textContent = '$0.00';
+    withdrawalHistory.innerHTML = '<p style="text-align:center; color:#94a3b8;">Please log in to see withdrawal history.</p>';
+  }
+});
+</script>
+
+</body>
+</html>

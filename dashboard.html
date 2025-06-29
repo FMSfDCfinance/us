@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Bank Dashboard</title>
+  <link rel="icon" href="logo.png" />
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://unpkg.com/phosphor-icons@1.4.2/src/css/phosphor.css" />
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<!-- Smartsupp Live Chat script -->
+<script type="text/javascript">
+var _smartsupp = _smartsupp || {};
+_smartsupp.key = '09886095a5987ea5673fadbf440836e647989737';
+window.smartsupp||(function(d) {
+	var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+	s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+	c.type='text/javascript';c.charset='utf-8';c.async=true;
+	c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+})(document);
+</script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      background-color: white;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 258px;
+      background-color: #ccc;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      color: white;
+      padding-top: 120px;
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .sidebar.hidden {
+      transform: translateX(-100%);
+    }
+
+    .sidebar nav {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    .sidebar nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar nav a:hover {
+      color: #aaa;
+    }
+
+    .main-content {
+      margin-left: 240px;
+      flex-grow: 1;
+      transition: margin-left 0.3s ease;
+    }
+
+    .main-content.sidebar-hidden {
+      margin-left: 0;
+    }
+
+    header {
+      background-color: #f0f0f0;
+      height: 110px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      box-sizing: border-box;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 999;
+    }
+
+    .logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      position: relative;
+    }
+
+    .logo-medium {
+      height: 42px;
+    }
+
+    .fdic-logo {
+      height: 14px;
+      margin-top: 4px;
+      margin-left: 10px;
+    }
+
+    .fdic-text {
+      font-size: 9px;
+      color: #333;
+      margin-top: -26px;
+      margin-left: 52px;
+      line-height: 1;
+      white-space: pre-line;
+    }
+
+    .avatar-container {
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+      gap: 16px;
+    }
+
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #2e3b6e;
+      cursor: pointer;
+    }
+
+    .avatar-dropdown {
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      background: #2e3b6e;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      min-width: 200px;
+      display: none;
+      z-index: 1001;
+    }
+
+    .avatar-dropdown div {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    .avatar-dropdown div:hover {
+      background: #1a2238;
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      fill: white;
+    }
+
+    main.container {
+      padding: 140px 20px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .wallets-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .wallet-card {
+      flex: 1 1 280px;
+      padding: 16px 20px;
+      background: #f0f0f0;
+      border-radius: 20px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      min-height: 120px;
+      max-width: 320px;
+    }
+
+    .wallet-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .wallet-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wallet-icon i {
+      font-size: 28px;
+      color: white;
+    }
+
+    .wallet-text .label {
+      font-size: 14px;
+      opacity: 0.7;
+      margin-bottom: 6px;
+    }
+
+    .wallet-text .amount {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    #greeting {
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 60px !important;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        height: 100%;
+        z-index: 1002;
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar hidden" id="sidebar" style="position: fixed; top: 0; left: 0; height: 100vh; width: 250px; background: #f5f5f5; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); z-index: 1000;">
+  <!-- Cancel Button -->
+  <button onclick="document.getElementById('sidebar').classList.add('hidden')" style="position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 20px; cursor: pointer;">
+    &times;
+  </button>
+
+  <nav style="margin-top: 40px;">
+    <!-- Dashboard -->
+    <a href="#" style="display: flex; align-items: center; margin: 10px 0; color: #002b5c; text-decoration: none;">
+      <span class="icon" style="margin-right: 10px;">
+        <svg width="20" height="20" fill="#002b5c" viewBox="0 0 24 24">
+          <path d="M3 13h8V3H3v10zm10 0h8V3h-8v10zM3 21h8v-6H3v6zm10 0h8v-6h-8v6z" />
+        </svg>
+      </span>
+      Dashboard
+    </a>
+    <hr />
+
+    <!-- Transaction History -->
+    <a href="history.html" style="display: flex; align-items: center; margin: 10px 0; color: #002b5c; text-decoration: none;">
+      <span class="icon" style="margin-right: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke="#002b5c" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </span>
+      Transaction History
+    </a>
+    <hr />
+
+    <!-- Deposit -->
+    <a href="deposit.html" style="display: flex; align-items: center; margin: 10px 0; color: #002b5c; text-decoration: none;">
+      <span class="icon" style="margin-right: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" stroke="#002b5c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      Deposit
+    </a>
+    <hr />
+
+    <!-- Withdraw -->
+    <a href="Withdraw.html" style="display: flex; align-items: center; margin: 10px 0; color: #002b5c; text-decoration: none;">
+      <span class="icon" style="margin-right: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 21V9m0 0l-4 4m4-4l4 4M4 3h16" stroke="#002b5c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      Withdraw
+    </a>
+    <hr />
+
+    <!-- Invest -->
+    <a href="investment.html" style="display: flex; align-items: center; margin: 10px 0; color: #002b5c; text-decoration: none;">
+      <span class="icon" style="margin-right: 10px;">
+        <svg width="20" height="20" fill="#002b5c" viewBox="0 0 24 24">
+          <path d="M11 2v20a10 10 0 0010-10H11z" />
+          <path d="M13 2.1A10 10 0 0121.9 11H13V2.1z" fill-opacity="0.3" />
+        </svg>
+      </span>
+      Invest
+    </a>
+    <hr />
+
+    <!-- Contact Us -->
+    <a href="chat.html" style="display: flex; align-items: center; margin: 10px 0; color: #002b5c; text-decoration: none;">
+      <span class="icon" style="margin-right: 10px;">
+        <svg width="20" height="20" fill="#002b5c" viewBox="0 0 24 24">
+          <path d="M4 4h16v16H4V4zm8 8l8-6H4l8 6zm0 2l-8-6v10h16V8l-8 6z" />
+        </svg>
+      </span>
+      Contact Us
+    </a>
+  </nav>
+</div>
+
+  <!-- Main Content -->
+  <div class="main-content sidebar-hidden" id="mainContent">
+    <header>
+      <div class="logo-container">
+        <img src="logo.png" alt="Top Logo" class="logo-medium">
+        <img src="fdic-only.svg" alt="FDIC Logo" class="fdic-logo">
+        <div class="fdic-text">
+          FDIC-Insured - Backed<br>
+          by the full faith and<br>
+          credit of the U.S.<br>
+          Government
+        </div>
+      </div>
+
+      <div class="avatar-container">
+        <!-- Sidebar Toggle -->
+        <div id="sidebarToggle" style="cursor: pointer;">
+          <i class="ph ph-list" style="font-size: 24px; color: #2e3b6e;"></i>
+        </div>
+
+        <!-- Avatar -->
+        <img src="https://i.pravatar.cc/100?img=12" alt="User Avatar" class="avatar" id="avatarBtn" />
+        <div class="avatar-dropdown" id="avatarDropdown">
+          <div><svg class="icon" viewBox="0 0 24 24"><path d="M12 1C8.1 1 5 4.1 5 8V11H3v10h18V11h-2V8c0-3.9-3.1-7-7-7zM8 8c0-2.2 1.8-4 4-4s4 1.8 4 4v3H8V8z" /></svg> Safety & Security</div>
+          <div><svg class="icon" viewBox="0 0 24 24"><path d="M12 7V3l8 8-8 8v-4H4V7h8z" /></svg> Change Password</div>
+          <div><svg class="icon" viewBox="0 0 24 24"><path d="M16 13v-2h-8v2h8zm2-10H6c-1.1 0-2 .9-2 2v4h2V5h12v14H6v-4H4v4c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" /></svg> Sign Out</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section id="greeting">
+        <h1 id="welcome" style="font-size: 26px; font-weight: 700;">Welcome back...</h1>
+        <div id="date" style="font-size: 18px; font-weight: 600; margin-top: 6px;">
+          
+        </div>
+        <p style="font-size: 14px; font-weight: 500; color: #aaa; margin-top: 10px;">Home / Dashboard</p>
+      </section>
+
+      <div class="wallets-container">
+        <div class="wallet-card">
+          <div class="wallet-header">
+            <div class="wallet-icon" style="background-color: #2e4aad;"><i class="ph ph-wallet"></i></div>
+            <div class="wallet-info">
+              <div class="wallet-text"><div class="label">BALANCE</div><div class="amount" id="balance-amount">$0.00</div></div>
+            </div>
+          </div>
+          <canvas id="chart-balance"></canvas>
+        </div>
+
+        <div class="wallet-card">
+          <div class="wallet-header">
+            <div class="wallet-icon" style="background-color: #2e7d32;"><i class="ph ph-wallet"></i></div>
+            <div class="wallet-info">
+              <div class="wallet-text"><div class="label">ACTIVE DEPOSIT</div><div class="amount" id="deposit-amount">$0.00</div></div>
+            </div>
+          </div>
+          <canvas id="chart-deposit"></canvas>
+        </div>
+
+        <div class="wallet-card">
+          <div class="wallet-header">
+            <div class="wallet-icon" style="background-color: #c62828;"><i class="ph ph-wallet"></i></div>
+            <div class="wallet-info">
+              <div class="wallet-text"><div class="label">EARNED BALANCE</div><div class="amount" id="earned-amount">$0.00</div></div>
+            </div>
+          </div>
+          <canvas id="chart-earned"></canvas>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB89FVW7DW8xdASCAyNsTN71zK5p_YMSVk",
+      authDomain: "titanium-fx.firebaseapp.com",
+      projectId: "titanium-fx",
+      storageBucket: "titanium-fx.appspot.com",
+      messagingSenderId: "623119248603",
+      appId: "1:623119248603:web:824489ee0033bef9bdf0fe"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        const name = user.displayName || "Trader";
+        document.getElementById("welcome").textContent = `Welcome back, ${name}!`;
+        db.collection('users').doc(user.uid).onSnapshot(doc => {
+          if (doc.exists) updateWallets(doc.data());
+        });
+      } else {
+        document.getElementById("welcome").textContent = `Welcome back...`;
+        updateWallets({ balance: 0, deposit: 0, earned: 0 });
+      }
+    });
+
+    function updateWallets(data) {
+      document.getElementById('balance-amount').innerText = `$ ${parseFloat(data.balance || 0).toFixed(2)}`;
+      document.getElementById('deposit-amount').innerText = `$ ${parseFloat(data.deposit || 0).toFixed(2)}`;
+      document.getElementById('earned-amount').innerText = `$ ${parseFloat(data.earned || 0).toFixed(2)}`;
+    }
+  </script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("date").innerText = new Date().toLocaleDateString('en-GB', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    const avatarBtn = document.getElementById('avatarBtn');
+    const avatarDropdown = document.getElementById('avatarDropdown');
+
+    avatarBtn.addEventListener('click', function () {
+      avatarDropdown.style.display = avatarDropdown.style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!avatarBtn.contains(e.target) && !avatarDropdown.contains(e.target)) {
+        avatarDropdown.style.display = 'none';
+      }
+    });
+
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+
+    sidebarToggle.addEventListener('click', function () {
+      sidebar.classList.toggle('hidden');
+      mainContent.classList.toggle('sidebar-hidden');
+    });
+  });
+
+    function generateInitialData() {
+      return Array.from({ length: 20 }, () => Math.floor(Math.random() * 20));
+    }
+
+    function renderLiveChart(id, color) {
+      const ctx = document.getElementById(id).getContext('2d');
+      const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: Array(20).fill(""),
+          datasets: [{
+            data: generateInitialData(),
+            borderColor: color,
+            backgroundColor: color + '33',
+            tension: 0.4,
+            fill: true,
+          }]
+        },
+        options: {
+          layout: { padding: 0 },
+          animation: false,
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { display: false },
+            y: { display: false, min: 0, max: 20 }
+          },
+          elements: { point: { radius: 0 }, line: { borderWidth: 2 } }
+        }
+      });
+
+      setInterval(() => {
+        chart.data.datasets[0].data.push(Math.floor(Math.random() * 20));
+        chart.data.datasets[0].data.shift();
+        chart.update();
+      }, 1000);
+    }
+
+    renderLiveChart("chart-balance", "#2e4aad");
+    renderLiveChart("chart-deposit", "#2e7d32");
+    renderLiveChart("chart-earned", "#c62828");
+  </script>
+</body>
+</html>
